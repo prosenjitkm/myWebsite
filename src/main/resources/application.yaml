@@ -1,3 +1,39 @@
 spring:
   application:
     name: backend
+  docker:
+    compose:
+      enabled: false   # Postgres runs natively — Docker Compose not needed locally
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:mywebsite}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate        # schema is managed by schema.sql — never auto-modify
+    show-sql: false
+
+  # ---- OAuth2 (Google) ----
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:please-set-a-real-256-bit-secret-in-env-file-do-not-use-this}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}   # 24 h
+
+logging:
+  level:
+    # AuthenticationProvider + UserDetailsService co-existence is intentional (JWT setup)
+    org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
+
