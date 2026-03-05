@@ -5,11 +5,12 @@ import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ResumeSection } from '../../core/models/resume.model';
 import { environment } from '../../../environments/environment';
+import { RichTextEditorComponent } from '../../shared/components/rich-text-editor/rich-text-editor.component';
 
 @Component({
   selector: 'app-resume',
   standalone: true,
-  imports: [FormsModule, NgClass],
+  imports: [FormsModule, NgClass, RichTextEditorComponent],
   templateUrl: './resume.component.html',
   styleUrl: './resume.component.css'
 })

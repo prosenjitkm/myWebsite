@@ -1,0 +1,109 @@
+.rte-wrapper {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  width: 100%;
+}
+
+/* ── Toolbar ── */
+.rte-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.toolbar-group {
+  display: flex;
+  gap: 2px;
+}
+
+.toolbar-sep {
+  width: 1px;
+  height: 22px;
+  background: #ccc;
+  margin: 0 4px;
+}
+
+.rte-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 28px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.rte-toolbar button:hover {
+  background: #e0e0e0;
+  border-color: #bbb;
+}
+
+.rte-toolbar button.active {
+  background: #d0e8ff;
+  border-color: #5aacff;
+  color: #0060c0;
+}
+
+/* ── Editor content area ── */
+.rte-content {
+  min-height: 160px;
+  padding: 12px 14px;
+  outline: none;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #222;
+}
+
+/* ProseMirror adds this class to the actual editable div */
+.rte-content .ProseMirror {
+  outline: none;
+  min-height: 140px;
+}
+
+.rte-content .ProseMirror p {
+  margin: 0 0 0.5em;
+}
+
+.rte-content .ProseMirror ul,
+.rte-content .ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0 0 0.5em;
+}
+
+.rte-content .ProseMirror li {
+  margin-bottom: 2px;
+}
+
+.rte-content .ProseMirror h2 {
+  font-size: 1.2em;
+  font-weight: 700;
+  margin: 0.6em 0 0.3em;
+}
+
+.rte-content .ProseMirror h3 {
+  font-size: 1.05em;
+  font-weight: 600;
+  margin: 0.5em 0 0.25em;
+}
+
+/* Placeholder */
+.rte-content .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #aaa;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+

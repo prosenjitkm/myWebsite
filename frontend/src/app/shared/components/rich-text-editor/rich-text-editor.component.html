@@ -1,0 +1,74 @@
+<div class="rte-wrapper">
+  <!-- ── Toolbar ── -->
+  <div class="rte-toolbar">
+
+    <!-- Text style -->
+    <div class="toolbar-group">
+      <button type="button" title="Bold (Ctrl+B)"
+              [class.active]="isActive('bold')"
+              (click)="toggle('bold')"><b>B</b></button>
+      <button type="button" title="Italic (Ctrl+I)"
+              [class.active]="isActive('italic')"
+              (click)="toggle('italic')"><i>I</i></button>
+      <button type="button" title="Underline (Ctrl+U)"
+              [class.active]="isActive('underline')"
+              (click)="toggle('underline')"><u>U</u></button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <!-- Headings -->
+    <div class="toolbar-group">
+      <button type="button" title="Heading 2"
+              [class.active]="isActive('heading', {level: 2})"
+              (click)="toggle('h2')">H2</button>
+      <button type="button" title="Heading 3"
+              [class.active]="isActive('heading', {level: 3})"
+              (click)="toggle('h3')">H3</button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <!-- Lists -->
+    <div class="toolbar-group">
+      <button type="button" title="Bullet list"
+              [class.active]="isActive('bulletList')"
+              (click)="toggle('bulletList')">• List</button>
+      <button type="button" title="Numbered list"
+              [class.active]="isActive('orderedList')"
+              (click)="toggle('orderedList')">1. List</button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <!-- Alignment -->
+    <div class="toolbar-group">
+      <button type="button" title="Align left"
+              [class.active]="isAlignActive('left')"
+              (click)="align('left')">⬅</button>
+      <button type="button" title="Align center"
+              [class.active]="isAlignActive('center')"
+              (click)="align('center')">☰</button>
+      <button type="button" title="Align right"
+              [class.active]="isAlignActive('right')"
+              (click)="align('right')">➡</button>
+      <button type="button" title="Justify"
+              [class.active]="isAlignActive('justify')"
+              (click)="align('justify')">≡</button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <!-- History -->
+    <div class="toolbar-group">
+      <button type="button" title="Undo (Ctrl+Z)" (click)="undo()">↩</button>
+      <button type="button" title="Redo (Ctrl+Y)" (click)="redo()">↪</button>
+    </div>
+
+  </div>
+
+  <!-- ── Editor area ── -->
+  <div #editorEl class="rte-content"></div>
+</div>
+
+

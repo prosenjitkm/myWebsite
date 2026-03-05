@@ -85,7 +85,7 @@
                   </div>
                 </div>
                 @if (item.description) {
-                  <p class="card-desc">{{ item.description }}</p>
+                  <div class="card-desc" [innerHTML]="item.description"></div>
                 }
               </div>
             </div>
@@ -122,9 +122,11 @@
                   <input type="checkbox" [(ngModel)]="draft()!.isVisible" />
                 </label>
                 <label class="full">Description
-                  <textarea rows="12" [(ngModel)]="draft()!.description"
-                            class="auto-resize"
-                            (input)="autoResize($event)"></textarea>
+                  <app-rich-text-editor
+                    [(ngModel)]="draft()!.description"
+                    name="draftDescription"
+                    placeholder="Describe responsibilities, achievements, skills…">
+                  </app-rich-text-editor>
                 </label>
               </div>
               <div class="edit-actions">
@@ -192,10 +194,11 @@
             <input type="checkbox" [(ngModel)]="newEntry.isVisible" />
           </label>
           <label class="full">Description
-            <textarea rows="12" [(ngModel)]="newEntry.description"
-                      class="auto-resize"
-                      (input)="autoResize($event)"
-                      placeholder="Describe responsibilities, achievements, skills…"></textarea>
+            <app-rich-text-editor
+              [(ngModel)]="newEntry.description"
+              name="newDescription"
+              placeholder="Describe responsibilities, achievements, skills…">
+            </app-rich-text-editor>
           </label>
         </div>
         <div class="edit-actions">
