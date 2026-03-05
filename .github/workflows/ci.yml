@@ -35,6 +35,7 @@ jobs:
           ./mvnw -B verify
 
       - name: SonarCloud scan (backend)
+        continue-on-error: true          # won't fail CI if project doesn't exist yet
         working-directory: backend
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -79,7 +80,8 @@ jobs:
         run: npx ng test --configuration=ci
 
       - name: SonarCloud scan (frontend)
-        uses: SonarSource/sonarcloud-github-action@master
+        continue-on-error: true          # won't fail CI if project doesn't exist yet
+        uses: SonarSource/sonarqube-scan-action@v5
         with:
           projectBaseDir: frontend
         env:
