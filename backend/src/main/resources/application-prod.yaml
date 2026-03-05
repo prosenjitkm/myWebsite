@@ -12,9 +12,10 @@ spring:
       enabled: false
 
   datasource:
-    # Cloud SQL Java Connector via socketFactoryArg
-    # CLOUD_SQL_INSTANCE env var is set by Cloud Run deploy step
-    url: jdbc:postgresql:///mywebsite?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=mywebsite-489221:us-east1:mywebsite-db
+    # Cloud Run mounts a Unix socket at /cloudsql/INSTANCE when --add-cloudsql-instances is set.
+    # PostgreSQL JDBC connects via Unix socket using the 'socketFactory' approach below.
+    # Using the google cloud sql connector via system property.
+    url: jdbc:postgresql:///mywebsite
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -23,6 +24,11 @@ spring:
       minimum-idle: 1
       connection-timeout: 20000
       idle-timeout: 300000
+      connection-init-sql: SELECT 1
+      data-source-properties:
+        socketFactory: com.google.cloud.sql.postgres.SocketFactory
+        cloudSqlInstance: mywebsite-489221:us-east1:mywebsite-db
+        enableIamAuth: false
 
   jpa:
     open-in-view: false
