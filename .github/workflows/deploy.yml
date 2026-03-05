@@ -231,4 +231,3 @@ jobs:
 
       - name: Print frontend URL
         run: echo "Frontend deployed at ${{ steps.deploy.outputs.url }}"
-
