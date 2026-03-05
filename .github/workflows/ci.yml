@@ -35,7 +35,6 @@ jobs:
           ./mvnw -B verify
 
       - name: SonarCloud scan (backend)
-        continue-on-error: true          # won't fail CI if project doesn't exist yet
         working-directory: backend
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -44,7 +43,7 @@ jobs:
           ./mvnw -B sonar:sonar \
             -Dsonar.token="${SONAR_TOKEN}" \
             -Dsonar.organization=prosenjitkm \
-            -Dsonar.projectKey=prosenjitkm_myWebsite_backend \
+            -Dsonar.projectKey=prosenjitkm_myWebsite \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
@@ -80,10 +79,13 @@ jobs:
         run: npx ng test --configuration=ci
 
       - name: SonarCloud scan (frontend)
-        continue-on-error: true          # won't fail CI if project doesn't exist yet
         uses: SonarSource/sonarqube-scan-action@v5
         with:
           projectBaseDir: frontend
+          args: >
+            -Dsonar.organization=prosenjitkm
+            -Dsonar.projectKey=prosenjitkm_myWebsite
+            -Dsonar.host.url=https://sonarcloud.io
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
