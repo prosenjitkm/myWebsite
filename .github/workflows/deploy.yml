@@ -2,7 +2,7 @@ name: Deploy to GCP
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths-ignore:
       - "**.md"
       - "database/**"
@@ -40,9 +40,9 @@ jobs:
         working-directory: backend
         run: ./mvnw -B verify
         env:
-          # Tests use application-test.yaml which connects to the real local DB.
-          # In CI we skip DB-dependent tests by using the test profile.
-          SPRING_PROFILES_ACTIVE: test
+          JWT_SECRET: "0000000000000000000000000000000000000000000000000000000000000000"
+          GOOGLE_CLIENT_ID: dummy-client-id
+          GOOGLE_CLIENT_SECRET: dummy-client-secret
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
