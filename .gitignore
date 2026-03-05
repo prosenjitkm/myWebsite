@@ -57,3 +57,17 @@ build/
 
 # Generated / local build artefacts
 backend/cp.txt
+
+# Root-level backend strays — these belong ONLY inside backend/
+# (guard against accidental duplication)
+/pom.xml
+/mvnw
+/mvnw.cmd
+/compose.yaml
+/Dockerfile
+/cp.txt
+/boot.log
+/.mvn/
+/src/
+/target/
+
