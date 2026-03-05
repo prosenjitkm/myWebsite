@@ -12,8 +12,8 @@ spring:
       enabled: false
 
   datasource:
-    # Cloud SQL Java Connector — socketFactory reads cloudSqlInstance from connection properties
-    url: jdbc:postgresql:///${DB_NAME}
+    # Cloud SQL Java Connector — pass instance name via JDBC URL query param
+    url: jdbc:postgresql:///${DB_NAME:mywebsite}?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=${CLOUD_SQL_INSTANCE:mywebsite-489221:us-east1:mywebsite-db}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -22,9 +22,6 @@ spring:
       minimum-idle: 1
       connection-timeout: 20000
       idle-timeout: 300000
-      data-source-properties:
-        socketFactory: com.google.cloud.sql.postgres.SocketFactory
-        cloudSqlInstance: ${CLOUD_SQL_INSTANCE}
 
   jpa:
     open-in-view: false
@@ -51,7 +48,7 @@ spring:
             # Google Console → Authorized redirect URIs must include:
             #   https://<backend-cloudrun-url>/login/oauth2/code/google
             # BACKEND_URL env var is the Cloud Run backend URL (set automatically by Cloud Run).
-            redirect-uri: "${BACKEND_URL}/login/oauth2/code/{registrationId}"
+            redirect-uri: "${BACKEND_URL:https://localhost:8081}/login/oauth2/code/{registrationId}"
 
 app:
   jwt:
@@ -67,5 +64,3 @@ logging:
     org.springframework.security: WARN
   pattern:
     console: '{"time":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%level","logger":"%logger{36}","msg":"%msg"}%n'
-
-
