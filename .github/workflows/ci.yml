@@ -79,7 +79,7 @@ jobs:
         run: npx ng test --configuration=ci
 
       - name: SonarCloud scan (frontend)
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v4
         with:
           projectBaseDir: frontend
           args: >
