@@ -1,0 +1,41 @@
+<div class="blog-page">
+  <h1>Blog</h1>
+
+  @if (loading()) {
+    <p class="state-msg">Loading posts…</p>
+  } @else if (error()) {
+    <p class="state-msg error">{{ error() }}</p>
+  } @else if (posts().length === 0) {
+    <p class="state-msg">No posts yet — check back soon!</p>
+  } @else {
+    <ul class="post-list">
+      @for (post of posts(); track post.id) {
+        <li class="post-card">
+          @if (post.coverImage) {
+            <img [src]="post.coverImage" [alt]="post.title" class="cover" />
+          }
+          <div class="post-body">
+            <div class="tags">
+              @for (tag of post.tags; track tag) {
+                <span class="tag">{{ tag }}</span>
+              }
+            </div>
+            <h2><a [routerLink]="['/blog', post.slug]">{{ post.title }}</a></h2>
+            <p class="summary">{{ post.summary }}</p>
+            <div class="meta">
+              <span>{{ post.authorUsername }}</span>
+              <span>{{ post.publishedAt | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+
+    <div class="pagination">
+      <button (click)="prev()" [disabled]="page() === 0">← Prev</button>
+      <span>Page {{ page() + 1 }} of {{ totalPages }}</span>
+      <button (click)="next()" [disabled]="page() + 1 >= totalPages">Next →</button>
+    </div>
+  }
+</div>
+

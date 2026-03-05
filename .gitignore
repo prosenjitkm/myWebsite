@@ -1,10 +1,39 @@
+# Environment variables - NEVER commit these
+.env
+*.env
+!.env.example
+
+# Local Spring Boot profile with real secrets - NEVER commit
+**/application-local.yaml
+application-local.yaml
+
+# GCP setup script is safe to commit (no hardcoded secrets, uses openssl/read)
+# but ignore any output files it might create
+gcp-setup-output.txt
+
+# Logs
+*.log
+boot.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IntelliJ IDEA - ignore the entire folder (contains local paths, secrets,
+# run configs, and workspace state that must not be shared)
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Maven / Spring Boot build output
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# STS
 .apt_generated
 .classpath
 .factorypath
@@ -13,13 +42,7 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -29,9 +52,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# VS Code
 .vscode/
 
-### Local secrets — never commit ###
-src/main/resources/application-local.yaml
-
+# Generated / local build artefacts
+backend/cp.txt

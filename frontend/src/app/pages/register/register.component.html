@@ -1,0 +1,35 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <h1>Create account</h1>
+    <p class="sub">Join and start commenting on posts</p>
+
+    <form (ngSubmit)="submit()">
+      @if (error()) {
+        <div class="form-error">{{ error() }}</div>
+      }
+      <div class="row">
+        <label>First name
+          <input type="text" [(ngModel)]="firstName" name="firstName" placeholder="Jane" required />
+        </label>
+        <label>Last name
+          <input type="text" [(ngModel)]="lastName" name="lastName" placeholder="Doe" required />
+        </label>
+      </div>
+      <label>Username
+        <input type="text" [(ngModel)]="username" name="username" placeholder="janedoe" required />
+      </label>
+      <label>Email
+        <input type="email" [(ngModel)]="email" name="email" placeholder="you@example.com" required />
+      </label>
+      <label>Password <span class="hint">(min. 8 characters)</span>
+        <input type="password" [(ngModel)]="password" name="password" placeholder="••••••••" required minlength="8" />
+      </label>
+      <button type="submit" class="btn-submit" [disabled]="loading()">
+        {{ loading() ? 'Creating account…' : 'Create Account' }}
+      </button>
+    </form>
+
+    <p class="switch">Already have an account? <a routerLink="/login">Sign in</a></p>
+  </div>
+</div>
+

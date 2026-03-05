@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: mywebsite-backend:latest
+    container_name: mywebsite-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+    depends_on: []
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: mywebsite-frontend:latest
+    container_name: mywebsite-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend

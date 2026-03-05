@@ -1,0 +1,212 @@
+<div class="resume-page">
+
+  <!-- ── Header ── -->
+  <div class="resume-header">
+    <div class="resume-header-info">
+      <h1>Prosenjit Kumar Mandal</h1>
+      <p class="tagline">Full-Stack Java Developer · 10+ years · Spring Boot · Angular · AWS/GCP</p>
+      <p class="contact">
+        📍 Paterson, NJ &nbsp;·&nbsp;
+        📞 929-899-6880 &nbsp;·&nbsp;
+        ✉️ <a href="mailto:prosenjitkm91@gmail.com">prosenjitkm91&#64;gmail.com</a> &nbsp;·&nbsp;
+        🔗 <a href="https://www.linkedin.com/in/prosenjitKm" target="_blank">LinkedIn</a>
+      </p>
+    </div>
+    <div class="resume-header-actions">
+      @if (isAdmin) {
+        <!-- Global add — opens modal with default section EXPERIENCE -->
+        <button class="btn-add-global" (click)="openAddModal()">＋ Add Entry</button>
+      }
+      <button class="btn-download" (click)="downloadResume()">⬇ Download</button>
+      @if (saveMsg()) {
+        <span class="save-msg">{{ saveMsg() }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- ── Loading / Error ── -->
+  @if (loading()) {
+    <div class="status-msg">Loading resume…</div>
+  } @else if (error()) {
+    <div class="status-msg is-error">{{ error() }}</div>
+  } @else {
+
+    @for (group of groups; track group) {
+      <section class="resume-section">
+
+        <!-- Section heading row with per-section ＋ button -->
+        <div class="section-heading-row">
+          <h2 class="section-heading">{{ labelFor(group) }}</h2>
+          @if (isAdmin) {
+            <button class="btn-add-section" (click)="openAddModal(group)" title="Add entry to {{ labelFor(group) }}">
+              ＋
+            </button>
+          }
+        </div>
+
+        @for (item of itemsFor(group); track item.id) {
+
+          <!-- VIEW MODE -->
+          @if (editingId() !== item.id) {
+            <div class="resume-card"
+                 [ngClass]="{'hidden-card': !item.isVisible, 'drag-over': dragOverId === item.id, 'is-dragging': dragId === item.id}"
+                 [attr.draggable]="isAdmin ? 'true' : null"
+                 (dragstart)="onDragStart(item.id)"
+                 (dragend)="onDragEnd()"
+                 (dragover)="onDragOver(item.id, $event)"
+                 (dragleave)="onDragLeave()"
+                 (drop)="onDrop(item.id, group)">
+
+              <div class="card-body">
+                <div class="card-top">
+                  <div class="card-left">
+                    @if (isAdmin) {
+                      <span class="drag-handle" title="Drag to reorder">⠿</span>
+                    }
+                    <div>
+                      <h3 class="card-title">{{ item.title }}</h3>
+                      @if (item.subtitle) { <p class="card-subtitle">{{ item.subtitle }}</p> }
+                    </div>
+                  </div>
+                  <div class="card-right">
+                    <div class="card-meta">
+                      @if (item.location) { <span>📍 {{ item.location }}</span> }
+                      @if (item.startDate || item.endDate) {
+                        <span class="card-dates">{{ formatDate(item.startDate) }} — {{ formatDate(item.endDate) }}</span>
+                      }
+                    </div>
+                    @if (isAdmin) {
+                      <div class="admin-btns">
+                        @if (!item.isVisible) { <span class="badge-hidden">Hidden</span> }
+                        <button class="btn-icon" (click)="startEdit(item)" title="Edit">✏️</button>
+                        <button class="btn-icon danger" (click)="deleteSection(item.id)" title="Delete">🗑</button>
+                      </div>
+                    }
+                  </div>
+                </div>
+                @if (item.description) {
+                  <p class="card-desc">{{ item.description }}</p>
+                }
+              </div>
+            </div>
+
+          <!-- EDIT MODE -->
+          } @else {
+            <div class="resume-card editing">
+              <div class="edit-grid">
+                <label>Section
+                  <select [(ngModel)]="draft()!.section">
+                    @for (k of SECTION_KEYS; track k) { <option>{{ k }}</option> }
+                  </select>
+                </label>
+                <label>Sort Order
+                  <input type="number" [(ngModel)]="draft()!.sortOrder" />
+                </label>
+                <label class="full">Title *
+                  <input [(ngModel)]="draft()!.title" />
+                </label>
+                <label class="full">Subtitle / Company
+                  <input [(ngModel)]="draft()!.subtitle" />
+                </label>
+                <label>Location
+                  <input [(ngModel)]="draft()!.location" />
+                </label>
+                <label>Start Date
+                  <input type="date" [ngModel]="draft()!.startDate" (ngModelChange)="draft()!.startDate=$event" />
+                </label>
+                <label>End Date <small>(blank = Present)</small>
+                  <input type="date" [ngModel]="draft()!.endDate" (ngModelChange)="draft()!.endDate=$event" />
+                </label>
+                <label class="full checkbox-label">
+                  Visible on public page
+                  <input type="checkbox" [(ngModel)]="draft()!.isVisible" />
+                </label>
+                <label class="full">Description
+                  <textarea rows="12" [(ngModel)]="draft()!.description"
+                            class="auto-resize"
+                            (input)="autoResize($event)"></textarea>
+                </label>
+              </div>
+              <div class="edit-actions">
+                <button class="btn-save" (click)="saveEdit()" [disabled]="saving()">
+                  {{ saving() ? 'Saving…' : '✔ Save' }}
+                </button>
+                <button class="btn-cancel" (click)="cancelEdit()">✖ Cancel</button>
+              </div>
+            </div>
+          }
+        }
+
+        <!-- ＋ Add inline at the bottom of each section (admin only) -->
+        @if (isAdmin) {
+          <button class="btn-add-inline" (click)="openAddModal(group)">
+            ＋ Add to {{ labelFor(group) }}
+          </button>
+        }
+
+      </section>
+    }
+
+    <!-- Admin: add a brand-new section type -->
+    @if (isAdmin) {
+      <div class="new-section-row">
+        <button class="btn-add-global outline" (click)="openAddModal()">＋ Add New Entry</button>
+      </div>
+    }
+  }
+
+  <!-- ── Add Entry Modal ── -->
+  @if (showAddModal()) {
+    <div class="modal-backdrop" (click)="closeAddModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Add New Entry</h3>
+          <button class="btn-modal-close" (click)="closeAddModal()">✕</button>
+        </div>
+        <div class="edit-grid">
+          <label>Section
+            <select [(ngModel)]="newEntry.section">
+              @for (k of SECTION_KEYS; track k) { <option>{{ k }}</option> }
+            </select>
+          </label>
+          <label>Sort Order
+            <input type="number" [(ngModel)]="newEntry.sortOrder" />
+          </label>
+          <label class="full">Title *
+            <input [(ngModel)]="newEntry.title" placeholder="e.g. Senior Java Developer" />
+          </label>
+          <label class="full">Subtitle / Company
+            <input [(ngModel)]="newEntry.subtitle" placeholder="e.g. Google" />
+          </label>
+          <label>Location
+            <input [(ngModel)]="newEntry.location" placeholder="e.g. Remote / New York, NY" />
+          </label>
+          <label>Start Date
+            <input type="date" [ngModel]="newEntry.startDate" (ngModelChange)="newEntry.startDate=$event" />
+          </label>
+          <label>End Date <small>(blank = Present)</small>
+            <input type="date" [ngModel]="newEntry.endDate" (ngModelChange)="newEntry.endDate=$event" />
+          </label>
+          <label class="full checkbox-label">
+            Visible on public page
+            <input type="checkbox" [(ngModel)]="newEntry.isVisible" />
+          </label>
+          <label class="full">Description
+            <textarea rows="12" [(ngModel)]="newEntry.description"
+                      class="auto-resize"
+                      (input)="autoResize($event)"
+                      placeholder="Describe responsibilities, achievements, skills…"></textarea>
+          </label>
+        </div>
+        <div class="edit-actions">
+          <button class="btn-save" (click)="submitAdd()" [disabled]="!newEntry.title?.trim()">
+            ＋ Add Entry
+          </button>
+          <button class="btn-cancel" (click)="closeAddModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  }
+
+</div>
+

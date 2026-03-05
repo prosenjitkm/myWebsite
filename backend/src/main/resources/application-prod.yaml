@@ -1,0 +1,69 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Production profile — loaded when SPRING_PROFILES_ACTIVE=prod
+# All secrets come from environment variables injected by Cloud Run / Secret Manager.
+# ──────────────────────────────────────────────────────────────────────────────
+
+server:
+  port: 8081
+
+spring:
+  docker:
+    compose:
+      enabled: false
+
+  datasource:
+    # Cloud SQL Auth Proxy (sidecar) exposes the DB on localhost:5432 in Cloud Run.
+    # DB_HOST will be "localhost" when using the proxy, or the private IP directly.
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5          # Cloud Run has limited connections; keep this low
+      minimum-idle: 1
+      connection-timeout: 20000
+      idle-timeout: 300000
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate            # schema is managed by schema.sql — never auto-modify
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+
+  # Google OAuth2 — credentials injected by Secret Manager at runtime
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+            # Spring Security handles the callback at /login/oauth2/code/google on the BACKEND.
+            # Google Console → Authorized redirect URIs must include:
+            #   https://<backend-cloudrun-url>/login/oauth2/code/google
+            # BACKEND_URL env var is the Cloud Run backend URL (set automatically by Cloud Run).
+            redirect-uri: "${BACKEND_URL:{baseUrl}}/login/oauth2/code/{registrationId}"
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: 86400000         # 24 hours
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+# Use structured JSON logging in production (Cloud Logging parses it automatically)
+logging:
+  level:
+    root: WARN
+    com.pro.backend: INFO
+    org.springframework.security: WARN
+  pattern:
+    console: '{"time":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%level","logger":"%logger{36}","msg":"%msg"}%n'
+
+

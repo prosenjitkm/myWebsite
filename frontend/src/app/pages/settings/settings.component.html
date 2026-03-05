@@ -1,0 +1,86 @@
+<div class="settings-page">
+  <h1>Account Settings</h1>
+
+  @if (loading()) {
+    <p class="status">Loading…</p>
+  } @else if (profile()) {
+
+    <!-- Profile info card -->
+    <div class="card info-card">
+      <div class="info-row">
+        <span class="label">Name</span>
+        <span>{{ profile()!.firstName }} {{ profile()!.lastName }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Email</span>
+        <span>{{ profile()!.email }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Username</span>
+        <span>{{ profile()!.username }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Login method</span>
+        <span class="badges">
+          @if (profile()!.oauthProvider) {
+            <span class="badge oauth">{{ profile()!.oauthProvider | uppercase }} OAuth</span>
+          }
+          @if (profile()!.hasPassword) {
+            <span class="badge local">Email + Password</span>
+          }
+          @if (!profile()!.oauthProvider && !profile()!.hasPassword) {
+            <span class="badge warn">None set</span>
+          }
+        </span>
+      </div>
+    </div>
+
+    <!-- Password card -->
+    <div class="card password-card">
+      <h2>{{ isFirstTime ? 'Set a Password' : 'Change Password' }}</h2>
+
+      @if (isFirstTime) {
+        <p class="hint">
+          You signed in with <strong>{{ profile()!.oauthProvider }}</strong>. Set a password
+          to also be able to log in with your email and password.
+        </p>
+      }
+
+      <form (ngSubmit)="submit()" #f="ngForm">
+
+        @if (!isFirstTime) {
+          <div class="field">
+            <label for="cur">Current Password</label>
+            <input id="cur" type="password" [(ngModel)]="currentPassword"
+                   name="currentPassword" autocomplete="current-password" required />
+          </div>
+        }
+
+        <div class="field">
+          <label for="new">New Password</label>
+          <input id="new" type="password" [(ngModel)]="newPassword"
+                 name="newPassword" autocomplete="new-password"
+                 minlength="8" required />
+          <small>Minimum 8 characters</small>
+        </div>
+
+        <div class="field">
+          <label for="conf">Confirm New Password</label>
+          <input id="conf" type="password" [(ngModel)]="confirmPassword"
+                 name="confirmPassword" autocomplete="new-password" required />
+        </div>
+
+        @if (msg()) {
+          <p class="feedback" [ngClass]="{'error': isError(), 'success': !isError()}">
+            {{ msg() }}
+          </p>
+        }
+
+        <button type="submit" class="btn-save" [disabled]="saving()">
+          {{ saving() ? 'Saving…' : (isFirstTime ? 'Set Password' : 'Update Password') }}
+        </button>
+      </form>
+    </div>
+  }
+</div>
+

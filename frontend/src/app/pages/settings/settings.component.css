@@ -1,0 +1,121 @@
+.settings-page {
+  max-width: 560px;
+  margin: 2rem auto;
+  padding: 0 1.5rem 4rem;
+  color: #e2e8f0;
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 0.75rem;
+}
+
+.card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Info card ── */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #334155;
+  font-size: 0.9rem;
+}
+.info-row:last-child { border-bottom: none; }
+
+.label {
+  color: #64748b;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 120px;
+}
+
+.badges { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.badge.oauth  { background: #1d4ed8; color: #bfdbfe; }
+.badge.local  { background: #166534; color: #bbf7d0; }
+.badge.warn   { background: #92400e; color: #fde68a; }
+
+/* ── Password card ── */
+.hint {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  margin: 0 0 1.25rem;
+  line-height: 1.6;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+}
+
+.field label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.field input {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #f1f5f9;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+.field input:focus { outline: none; border-color: #6366f1; }
+
+.field small { color: #475569; font-size: 0.78rem; }
+
+.feedback {
+  font-size: 0.88rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.feedback.success { background: #14532d; color: #86efac; }
+.feedback.error   { background: #450a0a; color: #fca5a5; }
+
+.btn-save {
+  width: 100%;
+  background: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-save:hover:not(:disabled) { background: #4f46e5; }
+.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.status { color: #64748b; text-align: center; padding: 3rem; }
+

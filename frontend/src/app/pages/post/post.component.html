@@ -1,0 +1,60 @@
+@if (loading()) {
+  <p class="state-msg">Loading…</p>
+} @else if (error()) {
+  <p class="state-msg error">{{ error() }}</p>
+} @else if (post(); as p) {
+  <article class="post-page">
+    @if (p.coverImage) {
+      <img [src]="p.coverImage" [alt]="p.title" class="cover" />
+    }
+    <div class="post-header">
+      <div class="tags">
+        @for (tag of p.tags; track tag) {
+          <span class="tag">{{ tag }}</span>
+        }
+      </div>
+      <h1>{{ p.title }}</h1>
+      <div class="meta">
+        <span>{{ p.authorUsername }}</span>
+        <span>{{ p.publishedAt | date:'longDate' }}</span>
+      </div>
+    </div>
+    <div class="post-body" [innerHTML]="p.body"></div>
+
+    <!-- Comments -->
+    <section class="comments-section">
+      <h2>Comments ({{ comments().length }})</h2>
+
+      @if (auth.isLoggedIn()) {
+        <div class="comment-form">
+          <textarea [(ngModel)]="commentBody" placeholder="Write a comment…" rows="4"></textarea>
+          @if (commentError) { <p class="form-error">{{ commentError }}</p> }
+          <button (click)="submitComment()" [disabled]="submitting || !commentBody.trim()">
+            {{ submitting ? 'Posting…' : 'Post Comment' }}
+          </button>
+        </div>
+      } @else {
+        <p class="login-prompt">
+          <a routerLink="/login">Log in</a> to leave a comment.
+        </p>
+      }
+
+      @if (comments().length === 0) {
+        <p class="no-comments">No comments yet. Be the first!</p>
+      } @else {
+        <ul class="comment-list">
+          @for (c of comments(); track c.id) {
+            <li class="comment">
+              <div class="comment-meta">
+                <strong>{{ c.authorUsername }}</strong>
+                <span>{{ c.createdAt | date:'medium' }}</span>
+              </div>
+              <p>{{ c.body }}</p>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </article>
+}
+
