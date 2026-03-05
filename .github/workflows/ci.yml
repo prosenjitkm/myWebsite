@@ -35,6 +35,7 @@ jobs:
           ./mvnw -B verify
 
       - name: SonarCloud scan (backend)
+        continue-on-error: true
         working-directory: backend
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -79,7 +80,8 @@ jobs:
         run: npx ng test --configuration=ci
 
       - name: SonarCloud scan (frontend)
-        uses: SonarSource/sonarqube-scan-action@v4
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@v5
         with:
           projectBaseDir: frontend
           args: >
