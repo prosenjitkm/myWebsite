@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ResumeSectionRepository extends JpaRepository<ResumeSection, Integer> {
     List<ResumeSection> findByIsVisibleTrueOrderBySectionAscSortOrderAsc();
+    List<ResumeSection> findAllByOrderBySectionAscSortOrderAsc();
 }
-

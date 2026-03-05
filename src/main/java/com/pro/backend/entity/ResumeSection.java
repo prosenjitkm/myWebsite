@@ -52,7 +52,8 @@ public class ResumeSection {
     private OffsetDateTime updatedAt;
 
     @PrePersist
-    void prePersist() {
-        createdAt = updatedAt = OffsetDateTime.now();
-    }
+    void prePersist() { createdAt = updatedAt = OffsetDateTime.now(); }
+
+    @PreUpdate
+    void preUpdate() { updatedAt = OffsetDateTime.now(); }
 }

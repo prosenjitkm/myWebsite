@@ -50,5 +50,10 @@ public final class ServiceConstants {
     public static final String OAUTH_ATTR_SUB          = "sub";        // Google's unique user ID
     /** Query-param name used to carry the JWT back to the Angular SPA after OAuth2 login */
     public static final String OAUTH_TOKEN_PARAM       = "token";
+
+    // ----------------------------------------------------------------
+    // CORS — allowed origins (dev + prod)
+    // ----------------------------------------------------------------
+    public static final String CORS_LOCAL_FRONTEND = "http://localhost:4200";
 }
 
