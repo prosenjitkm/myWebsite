@@ -12,8 +12,9 @@ spring:
       enabled: false
 
   datasource:
-    # Cloud SQL Java Connector — pass instance name via JDBC URL query param
-    url: jdbc:postgresql:///${DB_NAME:mywebsite}?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=${CLOUD_SQL_INSTANCE:mywebsite-489221:us-east1:mywebsite-db}
+    # Cloud SQL Java Connector via socketFactoryArg
+    # CLOUD_SQL_INSTANCE env var is set by Cloud Run deploy step
+    url: jdbc:postgresql:///mywebsite?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=mywebsite-489221:us-east1:mywebsite-db
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
