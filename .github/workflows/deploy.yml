@@ -140,8 +140,7 @@ jobs:
             --add-cloudsql-instances=${{ secrets.GCP_CLOUDSQL_INSTANCE }}
           env_vars: |
             SPRING_PROFILES_ACTIVE=prod
-            DB_HOST=127.0.0.1
-            DB_PORT=5432
+            CLOUD_SQL_INSTANCE=${{ secrets.GCP_CLOUDSQL_INSTANCE }}
             DB_NAME=${{ secrets.DB_NAME }}
             DB_USER=${{ secrets.DB_USER }}
             FRONTEND_URL=https://${{ secrets.FRONTEND_CLOUD_RUN_DOMAIN }}

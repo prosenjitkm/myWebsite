@@ -12,14 +12,14 @@ spring:
       enabled: false
 
   datasource:
-    # Cloud SQL Auth Proxy (sidecar) exposes the DB on localhost:5432 in Cloud Run.
-    # DB_HOST will be "localhost" when using the proxy, or the private IP directly.
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
+    # Cloud Run with --add-cloudsql-instances exposes DB via Unix socket.
+    # JDBC socket syntax: jdbc:postgresql:///?socketFactory=...&socketFactoryArg=INSTANCE
+    url: jdbc:postgresql:///mywebsite?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=${CLOUD_SQL_INSTANCE:mywebsite-489221:us-east1:mywebsite-db}&user=${DB_USER}&password=${DB_PASSWORD}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 5          # Cloud Run has limited connections; keep this low
+      maximum-pool-size: 5
       minimum-idle: 1
       connection-timeout: 20000
       idle-timeout: 300000
