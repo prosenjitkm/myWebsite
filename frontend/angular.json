@@ -83,7 +83,7 @@
               "watch": false,
               "coverage": true,
               "coverageReporters": ["lcov", "text-summary"],
-              "coverageDirectory": "coverage"
+              "runnerConfig": "vitest.config.ts"
             }
           }
         }
