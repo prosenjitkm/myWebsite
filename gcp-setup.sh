@@ -13,10 +13,10 @@
 set -euo pipefail
 
 # ── REPLACE THESE ─────────────────────────────────────────────────────────────
-PROJECT_ID="your-gcp-project-id"          # e.g. mywebsite-123456
-REGION="us-central1"
-GITHUB_USER="your-github-username"         # e.g. JohnDoe
-GITHUB_REPO="myWebsite"                    # your repo name
+PROJECT_ID="mywebsite-489221"
+REGION="us-east1"
+GITHUB_USER="prosenjitkm"
+GITHUB_REPO="myWebsite"
 DB_APP_PASSWORD="$(openssl rand -base64 24)"  # auto-generated secure password
 # ──────────────────────────────────────────────────────────────────────────────
 
