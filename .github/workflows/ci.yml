@@ -27,12 +27,7 @@ jobs:
       - name: Run tests and generate JaCoCo report
         working-directory: backend
         env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_NAME: mywebsite
-          DB_USER: admin
-          DB_PASSWORD: admin
-          JWT_SECRET: 0000000000000000000000000000000000000000000000000000000000000000
+          JWT_SECRET: "0000000000000000000000000000000000000000000000000000000000000000"
           GOOGLE_CLIENT_ID: dummy-client-id
           GOOGLE_CLIENT_SECRET: dummy-client-secret
         run: |
@@ -42,9 +37,15 @@ jobs:
       - name: SonarCloud scan (backend)
         working-directory: backend
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./mvnw -B sonar:sonar
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./mvnw -B sonar:sonar \
+            -Dsonar.token="${SONAR_TOKEN}" \
+            -Dsonar.organization=prosenjitkm \
+            -Dsonar.projectKey=prosenjitkm_myWebsite_backend \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 
       - name: Upload JaCoCo report
         uses: actions/upload-artifact@v4
