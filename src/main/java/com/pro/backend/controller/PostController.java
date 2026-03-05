@@ -9,6 +9,7 @@ import com.pro.backend.service.CommentService;
 import com.pro.backend.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping(UrlConstants.Posts.BASE)
 @RequiredArgsConstructor
@@ -34,19 +36,33 @@ public class PostController {
     public ResponseEntity<Page<PostResponse>> listPosts(
             @PageableDefault(size = ServiceConstants.DEFAULT_PAGE_SIZE,
                              sort = ServiceConstants.DEFAULT_POST_SORT) Pageable pageable) {
-        return ResponseEntity.ok(postService.getPublishedPosts(pageable));
+        log.debug("GET /posts — page={} size={}", pageable.getPageNumber(), pageable.getPageSize());
+        Page<PostResponse> page = postService.getPublishedPosts(pageable);
+        log.debug("GET /posts — returned {} posts", page.getTotalElements());
+        return ResponseEntity.ok(page);
     }
 
     // GET /api/posts/{slug}
     @GetMapping(UrlConstants.Posts.BY_SLUG)
     public ResponseEntity<PostResponse> getPost(@PathVariable String slug) {
-        return ResponseEntity.ok(postService.getPostBySlug(slug));
+        log.info("GET /posts/{}", slug);
+        try {
+            PostResponse post = postService.getPostBySlug(slug);
+            log.debug("GET /posts/{} — found title='{}'", slug, post.title());
+            return ResponseEntity.ok(post);
+        } catch (Exception e) {
+            log.warn("GET /posts/{} — not found: {}", slug, e.getMessage());
+            throw e;
+        }
     }
 
     // GET /api/posts/{postId}/comments
     @GetMapping(UrlConstants.Posts.COMMENTS)
     public ResponseEntity<List<CommentResponse>> getComments(@PathVariable UUID postId) {
-        return ResponseEntity.ok(commentService.getCommentsForPost(postId));
+        log.debug("GET /posts/{}/comments", postId);
+        List<CommentResponse> comments = commentService.getCommentsForPost(postId);
+        log.debug("GET /posts/{}/comments — returned {} comments", postId, comments.size());
+        return ResponseEntity.ok(comments);
     }
 
     // POST /api/posts/{postId}/comments  — authenticated users only
@@ -55,7 +71,14 @@ public class PostController {
             @PathVariable UUID postId,
             @Valid @RequestBody CommentRequest request,
             @AuthenticationPrincipal UserDetails currentUser) {
-        CommentResponse response = commentService.addComment(postId, currentUser.getUsername(), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        log.info("POST /posts/{}/comments — user={}", postId, currentUser.getUsername());
+        try {
+            CommentResponse response = commentService.addComment(postId, currentUser.getUsername(), request);
+            log.info("Comment added — postId={} commentId={}", postId, response.id());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            log.error("Add comment failed — postId={} user={} reason={}", postId, currentUser.getUsername(), e.getMessage());
+            throw e;
+        }
     }
 }

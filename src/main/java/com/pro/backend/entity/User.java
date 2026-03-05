@@ -70,7 +70,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(ServiceConstants.ROLE_PREFIX + role.getName()));
+        return List.of(new SimpleGrantedAuthority(role.getName()));
     }
 
     @Override

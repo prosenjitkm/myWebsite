@@ -1,6 +1,7 @@
 package com.pro.backend.entity;
 
 import com.pro.backend.constants.FieldConstants;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -43,7 +44,9 @@ public class ResumeSection {
 
     @Column(name = "is_visible", nullable = false)
     @Builder.Default
-    private boolean isVisible = true;
+    @JsonProperty("isVisible")
+    private boolean visible = true;    // field name "visible" → Lombok generates isVisible() + setVisible()
+                                       // @JsonProperty forces JSON key to stay "isVisible"
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;

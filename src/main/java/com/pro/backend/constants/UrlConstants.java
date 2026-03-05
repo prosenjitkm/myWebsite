@@ -20,10 +20,12 @@ public final class UrlConstants {
     public static final class Auth {
         private Auth() { throw new UnsupportedOperationException(); }
 
-        public static final String BASE     = API_BASE + "/auth";
-        public static final String REGISTER = "/register";
-        public static final String LOGIN    = "/login";
-        public static final String WILDCARD = BASE + "/**";
+        public static final String BASE         = API_BASE + "/auth";
+        public static final String REGISTER     = "/register";
+        public static final String LOGIN        = "/login";
+        public static final String SET_PASSWORD = "/set-password";
+        public static final String ME           = "/me";
+        public static final String WILDCARD     = BASE + "/**";
     }
 
     // ----------------------------------------------------------------

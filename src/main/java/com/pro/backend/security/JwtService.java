@@ -25,8 +25,15 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
+        // Extract the role name — strip the ROLE_ prefix if present
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(a -> a.getAuthority().replace("ROLE_", ""))
+                .orElse("USER");
+
         return Jwts.builder()
                 .subject(userDetails.getUsername())   // email
+                .claim("role", role)                  // e.g. "ADMIN" or "USER"
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)

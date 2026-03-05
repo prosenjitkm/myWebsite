@@ -48,6 +48,8 @@ public final class FieldConstants {
     public static final int RESUME_TITLE_MAX    = 255;
     public static final int RESUME_SUBTITLE_MAX = 255;
     public static final int RESUME_LOCATION_MAX = 255;
+    // description uses PostgreSQL TEXT (unlimited) — no hard cap, practical max ~50 000 chars
+    public static final int RESUME_DESCRIPTION_SOFT_MAX = 50_000;
 
     // ----------------------------------------------------------------
     // Role fields
