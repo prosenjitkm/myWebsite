@@ -12,9 +12,8 @@ spring:
       enabled: false
 
   datasource:
-    # Cloud Run with --add-cloudsql-instances exposes DB via Unix socket.
-    # JDBC socket syntax: jdbc:postgresql:///?socketFactory=...&socketFactoryArg=INSTANCE
-    url: jdbc:postgresql:///mywebsite?socketFactory=com.google.cloud.sql.postgres.SocketFactory&socketFactoryArg=${CLOUD_SQL_INSTANCE:mywebsite-489221:us-east1:mywebsite-db}&user=${DB_USER}&password=${DB_PASSWORD}
+    # Cloud SQL Java Connector — works with --add-cloudsql-instances in Cloud Run
+    url: jdbc:postgresql:///${DB_NAME}?cloudSqlInstance=${CLOUD_SQL_INSTANCE}&socketFactory=com.google.cloud.sql.postgres.SocketFactory
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -49,7 +48,7 @@ spring:
             # Google Console → Authorized redirect URIs must include:
             #   https://<backend-cloudrun-url>/login/oauth2/code/google
             # BACKEND_URL env var is the Cloud Run backend URL (set automatically by Cloud Run).
-            redirect-uri: "${BACKEND_URL:{baseUrl}}/login/oauth2/code/{registrationId}"
+            redirect-uri: "${BACKEND_URL}/login/oauth2/code/{registrationId}"
 
 app:
   jwt:
