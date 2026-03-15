@@ -18,6 +18,7 @@ Public repo note:
 [![Angular](https://img.shields.io/badge/Angular-21-red?logo=angular)](https://angular.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-blue?logo=postgresql)](https://www.postgresql.org/)
 [![GCP](https://img.shields.io/badge/GCP-Cloud%20Run-4285F4?logo=googlecloud)](https://cloud.google.com/)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/quality_gate?project=prosenjitkm_myWebsite)](https://sonarcloud.io/summary/new_code?id=prosenjitkm_myWebsite)
 
 ---
 
