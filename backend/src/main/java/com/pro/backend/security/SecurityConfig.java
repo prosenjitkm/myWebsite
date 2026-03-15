@@ -15,7 +15,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -48,7 +47,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(AbstractHttpConfigurer::disable)
+            // Keep CSRF enabled by default. We only ignore endpoints that do not use
+            // cookie-based authentication: the JSON API uses a Bearer token in the
+            // Authorization header, and the OAuth2 endpoints are Spring-managed redirects.
+            .csrf(csrf -> csrf.ignoringRequestMatchers(
+                    UrlConstants.API_BASE + "/**",
+                    UrlConstants.OAuth2.LOGIN_BASE + "/**",
+                    UrlConstants.OAuth2.CALLBACK_WILDCARD
+            ))
             // Sessions are stateless for API calls; OAuth2 redirect flow needs a brief session,
             // so we use IF_REQUIRED rather than STATELESS to let Spring store the OAuth2 state cookie.
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
