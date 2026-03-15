@@ -497,79 +497,74 @@ Invoke-WebRequest http://localhost:8081/api/resume
 
 ## ☁️ Deployment (GCP via GitHub Actions)
 
-Deployment is fully automated through GitHub Actions on every push to `main`.
+Deployment is automated through GitHub Actions on pushes to `main` or `master`, and it also supports manual `workflow_dispatch` runs.
+
+The repo is now wired for this production domain layout:
+- Frontend: `https://prosenjitkm.com`
+- Backend API: `https://api.prosenjitkm.com`
 
 ### Pipeline overview
 ```
-push to main
-  │
-  ├─ test        (backend mvn verify + frontend ng build --stub URL)
-  │
-  ├─ build-push-backend  (Docker build + push to Artifact Registry)
-  │
-  ├─ deploy-backend      (Cloud Run deploy → outputs HTTPS URL)
-  │
-  ├─ build-push-frontend (Docker build with real backend URL injected as build-arg)
-  │
-  └─ deploy-frontend     (Cloud Run deploy)
+push to main/master or manual run
+  |
+  |- test                 (backend mvn verify + frontend ng build with stub URL)
+  |- build-push-backend   (Docker build + push to Artifact Registry)
+  |- deploy-backend       (Cloud Run deploy with custom BACKEND_URL)
+  |- build-push-frontend  (Docker build with https://api.prosenjitkm.com/api)
+  `- deploy-frontend      (Cloud Run deploy)
 ```
 
-### One-time GCP Setup
-Run `gcp-setup.sh` **once** to provision all infrastructure:
+### One-time GCP setup
+Run `gcp-setup.sh` once after editing the variables at the top:
 ```bash
-# Edit the top of the file with your values first
 bash gcp-setup.sh
 ```
-This creates:
-- Artifact Registry repository for Docker images
-- Cloud SQL (PostgreSQL 15) instance with private IP
-- VPC Serverless Connector (Cloud Run → Cloud SQL)
-- Service Account for GitHub Actions
-- Workload Identity Federation (keyless auth — no JSON key files)
-- Secret Manager secrets (DB_PASSWORD, JWT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
+
+That script now prepares the base project resources:
+- Artifact Registry
+- Cloud SQL
+- Secret Manager secrets
+- GitHub Actions service account
+- Workload Identity Federation
+- Compute API enablement for the external HTTPS load balancer
 
 ### GitHub Secrets required
-After running `gcp-setup.sh`, add these to your repo's Settings → Secrets → Actions:
+Add these in GitHub -> Settings -> Secrets and variables -> Actions:
 
 | Secret | Description |
 |---|---|
-| `GCP_PROJECT_ID` | GCP project ID |
-| `GCP_REGION` | e.g. `us-central1` |
-| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Output from gcp-setup.sh |
-| `GCP_SERVICE_ACCOUNT` | `github-actions-sa@<project>.iam.gserviceaccount.com` |
-| `GCP_ARTIFACT_REGISTRY` | e.g. `us-central1-docker.pkg.dev/<project>/mywebsite` |
-| `GCP_REGISTRY_HOSTNAME` | e.g. `us-central1-docker.pkg.dev` |
-| `GCP_VPC_CONNECTOR` | Full connector resource path |
-| `DB_HOST` | Cloud SQL private IP |
+| `GCP_REGION` | e.g. `us-east1` |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | Output from `gcp-setup.sh` |
+| `GCP_SERVICE_ACCOUNT` | GitHub Actions deploy service account |
+| `GCP_ARTIFACT_REGISTRY` | e.g. `us-east1-docker.pkg.dev/<project>/mywebsite` |
+| `GCP_REGISTRY_HOSTNAME` | e.g. `us-east1-docker.pkg.dev` |
+| `GCP_CLOUDSQL_INSTANCE` | `<project>:<region>:<instance>` |
 | `DB_NAME` | `mywebsite` |
 | `DB_USER` | `appuser` |
-| `FRONTEND_CLOUD_RUN_DOMAIN` | Cloud Run domain (without https://) — set after first deploy |
-| `BACKEND_CLOUD_RUN_DOMAIN` | Cloud Run domain (without https://) — set after first deploy |
+| `FRONTEND_CLOUD_RUN_DOMAIN` | `prosenjitkm.com` |
+| `BACKEND_CLOUD_RUN_DOMAIN` | `api.prosenjitkm.com` |
 
-> **Note:** `DB_PASSWORD`, `JWT_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` live in Secret Manager and are mounted directly into Cloud Run — they do **not** need to be GitHub Secrets.
+`DB_PASSWORD`, `JWT_SECRET`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET` stay in Secret Manager and are injected into Cloud Run at deploy time.
 
-### Google OAuth2 Production Setup
-After first deploy, add to Google Cloud Console → APIs & Services → Credentials:
-- **Authorised redirect URIs**: `https://<backend-cloud-run-url>/login/oauth2/code/google`
-- **Authorised JavaScript origins**: `https://<frontend-cloud-run-url>`
-
-### Architecture on GCP
+### Production architecture
 ```
 Internet
-  │
-  ├── Cloud Run: mywebsite-frontend (nginx:alpine, port 8080)
-  │       Serves Angular SPA; API calls go to the backend Cloud Run URL
-  │
-  └── Cloud Run: mywebsite-backend  (eclipse-temurin:21-jre, port 8081)
-          │
-          VPC Connector
-          │
-          Cloud SQL (PostgreSQL 15, private IP only)
+  |
+  `- External HTTPS Load Balancer
+       |- host: prosenjitkm.com      -> Cloud Run frontend
+       `- host: api.prosenjitkm.com  -> Cloud Run backend
 
-Secrets: Secret Manager → mounted as env vars by Cloud Run
-Images:  Artifact Registry → pulled by Cloud Run at deploy time
-Auth:    Workload Identity Federation (no service account keys)
+Cloud Run frontend -> serves Angular SPA
+Cloud Run backend  -> Spring Boot API + Google OAuth callback
+Cloud SQL          -> PostgreSQL via Cloud SQL connector
 ```
+
+### OAuth production value
+In Google Auth Platform, set the redirect URI to:
+`https://api.prosenjitkm.com/login/oauth2/code/google`
+
+### Full runbook
+See [DEPLOYMENT.md](DEPLOYMENT.md) for the exact GCP, load balancer, Squarespace DNS, and Google OAuth steps.
 
 ---
 

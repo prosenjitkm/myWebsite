@@ -2,11 +2,12 @@ name: Deploy to GCP
 
 on:
   push:
-    branches: [master]
+    branches: [main, master]
     paths-ignore:
       - "**.md"
       - "database/**"
       - ".gitignore"
+  workflow_dispatch:
 
 # Required for Workload Identity Federation
 permissions:
@@ -18,6 +19,8 @@ env:
   REGISTRY: ${{ secrets.GCP_ARTIFACT_REGISTRY }}
   BACKEND_IMAGE: ${{ secrets.GCP_ARTIFACT_REGISTRY }}/backend
   FRONTEND_IMAGE: ${{ secrets.GCP_ARTIFACT_REGISTRY }}/frontend
+  FRONTEND_DOMAIN: ${{ secrets.FRONTEND_CLOUD_RUN_DOMAIN }}
+  BACKEND_DOMAIN: ${{ secrets.BACKEND_CLOUD_RUN_DOMAIN }}
 
 jobs:
   # ─────────────────────────────────────────────────────────────────
@@ -113,8 +116,6 @@ jobs:
     name: Deploy Backend
     runs-on: ubuntu-latest
     needs: build-push-backend
-    outputs:
-      backend-url: ${{ steps.deploy.outputs.url }}
 
     steps:
       - name: Authenticate to Google Cloud
@@ -143,8 +144,8 @@ jobs:
             CLOUD_SQL_INSTANCE=${{ secrets.GCP_CLOUDSQL_INSTANCE }}
             DB_NAME=${{ secrets.DB_NAME }}
             DB_USER=${{ secrets.DB_USER }}
-            FRONTEND_URL=https://${{ secrets.FRONTEND_CLOUD_RUN_DOMAIN }}
-            BACKEND_URL=https://${{ secrets.BACKEND_CLOUD_RUN_DOMAIN }}
+            FRONTEND_URL=https://${{ env.FRONTEND_DOMAIN }}
+            BACKEND_URL=https://${{ env.BACKEND_DOMAIN }}
           secrets: |
             DB_PASSWORD=DB_PASSWORD:latest
             JWT_SECRET=JWT_SECRET:latest
@@ -156,7 +157,7 @@ jobs:
 
   # ─────────────────────────────────────────────────────────────────
   # 4. BUILD & PUSH frontend image
-  #    Injects the real backend Cloud Run URL as a Docker build-arg
+  #    Injects the custom backend API domain as a Docker build-arg
   # ─────────────────────────────────────────────────────────────────
   build-push-frontend:
     name: Build & Push Frontend Image
@@ -188,14 +189,14 @@ jobs:
             type=sha,prefix=sha-,format=short
             type=raw,value=latest
 
-      - name: Build & Push frontend image (inject real backend URL)
+      - name: Build & Push frontend image (inject custom backend API domain)
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           build-args: |
-            BACKEND_URL=${{ needs.deploy-backend.outputs.backend-url }}/api
+            BACKEND_URL=https://${{ env.BACKEND_DOMAIN }}/api
           cache-from: type=registry,ref=${{ env.FRONTEND_IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.FRONTEND_IMAGE }}:buildcache,mode=max
 

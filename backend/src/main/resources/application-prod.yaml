@@ -23,7 +23,7 @@ spring:
       idle-timeout: 300000
       # These properties are passed directly to the PostgreSQL JDBC driver
       # The socket factory reads socketFactoryArg from the driver Properties object
-      connection-properties: "socketFactory=com.google.cloud.sql.postgres.SocketFactory;socketFactoryArg=mywebsite-489221:us-east1:mywebsite-db"
+      connection-properties: "socketFactory=com.google.cloud.sql.postgres.SocketFactory;socketFactoryArg=${CLOUD_SQL_INSTANCE}"
 
   jpa:
     open-in-view: false
@@ -46,10 +46,10 @@ spring:
             scope:
               - email
               - profile
-            # Spring Security handles the callback at /login/oauth2/code/google on the BACKEND.
-            # Google Console → Authorized redirect URIs must include:
-            #   https://<backend-cloudrun-url>/login/oauth2/code/google
-            # BACKEND_URL env var is the Cloud Run backend URL (set automatically by Cloud Run).
+            # Spring Security handles the callback at /login/oauth2/code/google on the backend.
+            # Google Console -> Authorized redirect URIs must include the custom API domain:
+            #   https://api.prosenjitkm.com/login/oauth2/code/google
+            # BACKEND_URL is injected by the deploy workflow.
             redirect-uri: "${BACKEND_URL:https://localhost:8081}/login/oauth2/code/{registrationId}"
 
 app:

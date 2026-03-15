@@ -17,6 +17,8 @@ PROJECT_ID="mywebsite-489221"
 REGION="us-east1"
 GITHUB_USER="prosenjitkm"
 GITHUB_REPO="myWebsite"
+FRONTEND_DOMAIN="prosenjitkm.com"
+BACKEND_DOMAIN="api.prosenjitkm.com"
 DB_APP_PASSWORD="$(openssl rand -base64 24)"  # auto-generated secure password
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -31,6 +33,7 @@ echo "==> Enabling APIs..."
 gcloud services enable \
   run.googleapis.com \
   sqladmin.googleapis.com \
+  compute.googleapis.com \
   artifactregistry.googleapis.com \
   secretmanager.googleapis.com \
   iam.googleapis.com \
@@ -165,6 +168,13 @@ echo "    PGPASSWORD='${DB_APP_PASSWORD}' psql -h 127.0.0.1 -U appuser -d mywebs
 # SUMMARY
 # ─────────────────────────────────────────────────────────────────────────────
 echo ""
+echo ""
+echo "NEXT MANUAL STEPS"
+echo "  1. Deploy both Cloud Run services with GitHub Actions."
+echo "  2. Put a global external HTTPS load balancer in front of them."
+echo "  3. Point Squarespace DNS for $FRONTEND_DOMAIN and $BACKEND_DOMAIN to the load balancer IP."
+echo "  4. Set Google OAuth redirect URI to https://${BACKEND_DOMAIN}/login/oauth2/code/google"
+echo "  5. See DEPLOYMENT.md for the exact domain and DNS runbook."
 echo "============================================================"
 echo " GITHUB SECRETS — add these at:"
 echo " https://github.com/${GITHUB_USER}/${GITHUB_REPO}/settings/secrets/actions"
@@ -178,10 +188,9 @@ echo "GCP_REGISTRY_HOSTNAME         = ${REGION}-docker.pkg.dev"
 echo "GCP_CLOUDSQL_INSTANCE         = $INSTANCE_CONNECTION_NAME"
 echo "DB_NAME                       = mywebsite"
 echo "DB_USER                       = appuser"
-echo "FRONTEND_CLOUD_RUN_DOMAIN     = (set after first deploy)"
-echo "BACKEND_CLOUD_RUN_DOMAIN      = (set after first deploy)"
+echo "FRONTEND_CLOUD_RUN_DOMAIN     = $FRONTEND_DOMAIN"
+echo "BACKEND_CLOUD_RUN_DOMAIN      = $BACKEND_DOMAIN"
 echo ""
 echo "NOTE: DB_PASSWORD, JWT_SECRET, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET"
 echo "      are stored in Secret Manager — NOT needed as GitHub Secrets."
 echo "============================================================"
-

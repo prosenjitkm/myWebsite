@@ -28,6 +28,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Configuration
 @EnableWebSecurity
@@ -39,9 +40,9 @@ public class SecurityConfig {
     private final UserRepository userRepository;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    /** Reads FRONTEND_URL env var; falls back to localhost:4200 in dev */
-    @Value("${FRONTEND_URL:" + ServiceConstants.CORS_LOCAL_FRONTEND + "}")
-    private String frontendUrl;
+    /** Reads FRONTEND_URLS or FRONTEND_URL; comma-separated values are supported. */
+    @Value("${FRONTEND_URLS:${FRONTEND_URL:" + ServiceConstants.CORS_LOCAL_FRONTEND + "}}")
+    private String frontendUrls;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -75,8 +76,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Allow the Angular SPA (dev + prod URL from env)
-        config.setAllowedOrigins(List.of(ServiceConstants.CORS_LOCAL_FRONTEND, frontendUrl));
+        // Allow localhost in dev plus one or more production origins from env.
+        List<String> allowedOrigins = Stream.concat(
+                        Stream.of(ServiceConstants.CORS_LOCAL_FRONTEND),
+                        Stream.of(frontendUrls.split(",")))
+                .map(String::trim)
+                .filter(origin -> !origin.isBlank())
+                .distinct()
+                .toList();
+        config.setAllowedOrigins(allowedOrigins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
