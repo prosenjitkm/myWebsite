@@ -7,6 +7,13 @@ This repository is configured for this production layout:
 
 `www.prosenjitkm.com` is optional. If you expose it later, either redirect it to the apex domain or allow both origins in backend CORS.
 
+## Current state
+
+- GitHub Actions deploys both services from `main` or `master`
+- The custom domain, managed TLS certificate, and external HTTPS load balancer are in place
+- Cloud Run fallback URLs still exist and are useful for debugging
+- Local PostgreSQL data is not migrated automatically to Cloud SQL
+
 ## 1. Prepare GCP
 
 Run the base setup script once:
@@ -47,6 +54,12 @@ Do not add these as GitHub secrets:
 - `GOOGLE_CLIENT_SECRET`
 
 Those belong in Secret Manager.
+
+Public repo safety:
+
+- keep real secrets out of committed files, issue comments, and screenshots
+- do not store production dumps in the repo
+- treat SQL exports containing user accounts or password hashes as sensitive
 
 ## 3. First deploy
 
@@ -104,7 +117,7 @@ https://api.prosenjitkm.com/login/oauth2/code/google
 
 If the OAuth app is still in testing mode, make sure the intended Google accounts are added as test users.
 
-## 7. Load database schema
+## 7. Load database schema and import data
 
 The application uses `ddl-auto: validate`, so the database schema must exist before the backend starts cleanly.
 
@@ -112,7 +125,13 @@ Apply:
 
 - `database/schema.sql`
 - `database/patch_oauth2_columns.sql`
-- `database/seed_resume.sql`
+- `database/seed_resume.sql` if you want the starter resume content
+
+Important:
+
+- local PostgreSQL contents are not copied to Cloud SQL by the deploy workflow
+- importing local data is a separate operation, typically via `pg_dump` / `psql` or a Cloud SQL import
+- be careful when importing `users`, because password hashes, OAuth IDs, and foreign-key IDs must remain consistent
 
 ## 8. Final hardening
 
@@ -132,3 +151,12 @@ After the load balancer and certificate are working:
 - comments work when logged in
 - resume DOCX download works
 - HTTPS certificate is active for all configured hosts
+
+## 10. Cost and cleanup
+
+- The main fixed monthly costs in this setup are usually the external HTTPS load balancer and Cloud SQL.
+- Cloud Run is usually a small part of the bill at low traffic because both services use `min-instances=0`.
+- If you only need the deployment temporarily for demos or learning, the main cost-saving steps are:
+  - delete the load balancer resources
+  - stop or delete Cloud SQL
+  - optionally delete Cloud Run services and Artifact Registry images for full cleanup

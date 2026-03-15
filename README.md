@@ -2,6 +2,17 @@
 
 A production-grade full-stack personal website featuring a blog, interactive resume, OAuth2 authentication, and a comment system. Built with **Spring Boot 4 + Angular 21**, deployed to **Google Cloud Platform**.
 
+Production URLs:
+- Frontend: `https://prosenjitkm.com`
+- Backend API: `https://api.prosenjitkm.com`
+- Fallback frontend URL: `https://mywebsite-frontend-qoq7fvxqdq-ue.a.run.app`
+- Fallback backend URL: `https://mywebsite-backend-qoq7fvxqdq-ue.a.run.app`
+
+Public repo note:
+- No live secrets are committed to this repository.
+- Production secrets stay in Google Secret Manager and GitHub Actions configuration.
+- `.env.example` contains placeholders only.
+
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=java)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.3-brightgreen?logo=springboot)](https://spring.io/projects/spring-boot)
 [![Angular](https://img.shields.io/badge/Angular-21-red?logo=angular)](https://angular.io/)
@@ -140,7 +151,7 @@ User clicks "Continue with Google"
 - 🔃 **Drag & Drop Reorder** — Drag resume cards to reorder; persists to database
 - 👁 **Show/Hide Entries** — Toggle visibility without deleting
 - 🗑 **Delete Entries** — Remove resume sections
-- ✍️ **Blog Post Management** — Create, edit, publish/unpublish posts
+- Resume management is fully implemented in the current admin UI. Admin blog post CRUD is still a planned feature and is not exposed by the current backend/frontend.
 
 ### Account Linking
 - Users who sign up with email can later use Google OAuth (same account, linked by email)
@@ -334,11 +345,10 @@ resume_sections  (standalone — no FK to users)
 |---|---|---|---|
 | GET | `/` | Public | Paginated post list |
 | GET | `/{slug}` | Public | Single post |
-| POST | `/` | 🔒 ADMIN | Create post |
-| PUT | `/{id}` | 🔒 ADMIN | Update post |
-| DELETE | `/{id}` | 🔒 ADMIN | Delete post |
 | GET | `/{postId}/comments` | Public | Post comments |
 | POST | `/{postId}/comments` | 🔒 Any | Add comment |
+
+Current status: public post reads and authenticated comments are implemented. Admin post CRUD endpoints are not currently exposed by `PostController`.
 
 ### Resume — `/api/resume`
 | Method | Path | Auth | Description |
@@ -503,6 +513,13 @@ The repo is now wired for this production domain layout:
 - Frontend: `https://prosenjitkm.com`
 - Backend API: `https://api.prosenjitkm.com`
 
+### Current production status
+- `https://prosenjitkm.com` serves the Angular SPA
+- `https://api.prosenjitkm.com` serves the Spring Boot backend
+- managed TLS is active for both hosts
+- Cloud Run services can also be reached by their `run.app` fallback URLs
+- local PostgreSQL data is not copied to Cloud SQL automatically; schema/data migration is a separate step
+
 ### Pipeline overview
 ```
 push to main/master or manual run
@@ -546,6 +563,11 @@ Add these in GitHub -> Settings -> Secrets and variables -> Actions:
 
 `DB_PASSWORD`, `JWT_SECRET`, `GOOGLE_CLIENT_ID`, and `GOOGLE_CLIENT_SECRET` stay in Secret Manager and are injected into Cloud Run at deploy time.
 
+### Public repo safety
+- Keep real credentials out of `.env`, `application-local.yaml`, workflow files, and committed SQL.
+- Use Secret Manager for runtime secrets and GitHub Actions secrets only for non-secret deploy wiring.
+- Treat any exported SQL dump as sensitive if it contains user data, OAuth identifiers, or password hashes.
+
 ### Production architecture
 ```
 Internet
@@ -566,6 +588,9 @@ In Google Auth Platform, set the redirect URI to:
 ### Full runbook
 See [DEPLOYMENT.md](DEPLOYMENT.md) for the exact GCP, load balancer, Squarespace DNS, and Google OAuth steps.
 
+### Cost note
+This stack is functional for learning and demos, but the main fixed monthly costs come from the external HTTPS load balancer and Cloud SQL. Cloud Run itself is usually not the primary cost driver at low traffic because both services run with `min-instances=0`.
+
 ---
 
 ## 🗺 Roadmap
@@ -573,13 +598,14 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for the exact GCP, load balancer, Squarespace
 ### ✅ Done
 - [x] **CI/CD** — GitHub Actions → GCP Artifact Registry → Cloud Run
 - [x] **JWT Auth** — Register, login, OAuth2 (Google), set-password for OAuth users
-- [x] **Blog system** — Posts, tags, comments
+- [x] **Custom domain** — `prosenjitkm.com` and `api.prosenjitkm.com`
+- [x] **Public blog reads + comments** — Post list, post detail, authenticated comments
 - [x] **Resume editor** — Admin drag-and-drop editable resume sections
 - [x] **Role-based access** — ADMIN vs USER controls via `@PreAuthorize`
 - [x] **Workload Identity Federation** — Keyless GCP auth (no JSON key files)
 
 ### 🔜 Up Next
-- [ ] **Custom domain** — Map `yourdomain.com` to Cloud Run frontend
+- [ ] **Admin blog CRUD** — Create, edit, publish, and delete posts from the backend and UI
 - [ ] **Admin blog editor** — Rich text (Quill/TipTap) post creation UI
 - [ ] **Comment moderation** — Admin approve/reject comments
 - [ ] **Image uploads** — Cover images via GCS bucket
@@ -587,6 +613,7 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for the exact GCP, load balancer, Squarespace
 - [ ] **Rate limiting** — Bucket4j on auth endpoints
 - [ ] **Refresh tokens** — Sliding JWT expiry
 - [ ] **GitHub OAuth** — Second social login provider
+- [ ] **Cloud SQL data migration automation** — Repeatable import/export path between local Postgres and Cloud SQL
 
 ---
 

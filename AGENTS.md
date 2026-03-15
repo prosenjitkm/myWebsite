@@ -12,6 +12,12 @@
 - **Owner:** Single admin user (`admin@mywebsite.com`), public readers, registered commenters
 - **Repo visibility:** PUBLIC — never commit secrets, credentials, or real passwords
 
+### Production URLs
+- Frontend: `https://prosenjitkm.com`
+- Backend API: `https://api.prosenjitkm.com`
+- Fallback frontend: `https://mywebsite-frontend-qoq7fvxqdq-ue.a.run.app`
+- Fallback backend: `https://mywebsite-backend-qoq7fvxqdq-ue.a.run.app`
+
 ---
 
 ## 📁 Monorepo Layout
@@ -120,10 +126,12 @@ Angular (4200) → JWT in Authorization header → Spring Boot (8081) → Postgr
 |---|---|
 | Public GET | `/api/auth/**`, `GET /api/posts/**`, `GET /api/resume/**` |
 | Authenticated | Everything else |
-| Admin only | `POST/PUT/DELETE /api/posts/**`, `POST/PUT/DELETE/PATCH /api/resume/**`, `GET /api/resume/all` |
+| Admin only | `POST/PUT/DELETE/PATCH /api/resume/**`, `GET /api/resume/all` |
 | `@PreAuthorize` | Used on service/controller methods, NOT in SecurityConfig |
 | JWT filter | `JwtAuthFilter` — silently ignores bad tokens (catch block), never blocks public routes |
 | OAuth account linking | By `(provider, oauthId)` first, then by email — prevents duplicate accounts |
+
+Note: the docs may describe admin blog CRUD as planned, but the current codebase only exposes public post reads and authenticated comment creation in `PostController`.
 
 ---
 
@@ -242,7 +250,7 @@ Both are in `.gitignore`. The `application-local.yaml` pattern is in both root a
 
 ### Frontend
 - All HTTP calls go through `ApiService` — never call `HttpClient` directly in components
-- All backend URLs in `ApiService` only — currently hardcoded to `localhost:8081` (update for prod)
+- Backend URLs are environment-driven from `environment.ts` / `environment.prod.ts`; components should not hardcode API hosts
 - Components use Angular Signals (`signal()`, `computed()`) for state — not `BehaviorSubject`
 - All components are standalone (`standalone: true`)
 - Lazy loading via `loadComponent` in `app.routes.ts`
@@ -274,4 +282,10 @@ backend/src/test/resources/application.yaml
 - Sections: SUMMARY, SKILLS (×5), EXPERIENCE (×4), EDUCATION (×3), CERTIFICATIONS (×2), OTHER (×2)
 - Downloadable DOCX at: `GET http://localhost:8081/assets/resume.docx`
 - Served from: `backend/src/main/resources/static/assets/resume.docx`
+
+## ☁️ Deployment Notes
+
+- Cloud Run deployment does not migrate local PostgreSQL data into Cloud SQL automatically.
+- Production secrets live in Secret Manager and GitHub Actions configuration, not in this repo.
+- The main fixed cloud costs in this setup are typically the external HTTPS load balancer and Cloud SQL, not Cloud Run itself.
 
