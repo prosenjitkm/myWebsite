@@ -12,7 +12,7 @@ RUN mvn -B -DskipTests package
 # Runtime image
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-# Cloud Run injects PORT env var; Spring listens on 8081 (set in application.yaml)
+# The application listens on port 8081 by default.
 EXPOSE 8081
 ARG JAR_FILE=target/backend-0.0.1-SNAPSHOT.jar
 COPY --from=build /workspace/${JAR_FILE} ./app.jar

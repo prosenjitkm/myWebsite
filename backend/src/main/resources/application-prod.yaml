@@ -1,7 +1,5 @@
-# ──────────────────────────────────────────────────────────────────────────────
-# Production profile — loaded when SPRING_PROFILES_ACTIVE=prod
-# All secrets come from environment variables injected by Cloud Run / Secret Manager.
-# ──────────────────────────────────────────────────────────────────────────────
+# Production profile loaded when SPRING_PROFILES_ACTIVE=prod.
+# Secrets and connection details are provided through environment variables.
 
 server:
   port: 8081
@@ -12,9 +10,7 @@ spring:
       enabled: false
 
   datasource:
-    # Cloud SQL JDBC connector options are embedded directly in the JDBC URL.
-    # This avoids Hikari property-binding differences and matches Google's Postgres sample.
-    url: jdbc:postgresql:///${DB_NAME}?socketFactory=com.google.cloud.sql.postgres.SocketFactory&cloudSqlInstance=${CLOUD_SQL_INSTANCE}&cloudSqlRefreshStrategy=lazy
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -27,14 +23,13 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate            # schema is managed by schema.sql — never auto-modify
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
 
-  # Google OAuth2 — credentials injected by Secret Manager at runtime
   security:
     oauth2:
       client:
@@ -45,19 +40,13 @@ spring:
             scope:
               - email
               - profile
-            # Spring Security handles the callback at /login/oauth2/code/google on the backend.
-            # Google Console -> Authorized redirect URIs must include the custom API domain:
-            #   https://api.prosenjitkm.com/login/oauth2/code/google
-            # BACKEND_URL is injected by the deploy workflow.
             redirect-uri: "${BACKEND_URL:https://localhost:8081}/login/oauth2/code/{registrationId}"
 
 app:
   jwt:
     secret: ${JWT_SECRET}
-    expiration-ms: 86400000         # 24 hours
+    expiration-ms: 86400000
 
-# ── Logging ──────────────────────────────────────────────────────────────────
-# Use structured JSON logging in production (Cloud Logging parses it automatically)
 logging:
   level:
     root: WARN
